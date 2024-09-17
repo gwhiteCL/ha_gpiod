@@ -99,9 +99,6 @@ class Hub:
         if not self._online:
             return
 
-        # setup lines
-        self.update_lines()
-
         # read initial states for sensors
         for port in self._config:
             self._entities[port].update()
@@ -166,6 +163,7 @@ class Hub:
         self._config[port].active_low = active_low
         self._config[port].bias = BIAS[bias]
         self._config[port].drive = DRIVE[drive]
+        self.update_lines()
 
     def turn_on(self, port) -> None:
         _LOGGER.debug(f"in turn_on")
@@ -185,6 +183,7 @@ class Hub:
         self._config[port].edge_detection = Edge.BOTH
         self._config[port].event_clock = Clock.REALTIME
         self._edge_events = True
+        self.update_lines()
 
     def update(self, port, **kwargs):
         return self._lines.get_value(port) == Value.ACTIVE
@@ -194,4 +193,5 @@ class Hub:
         _LOGGER.debug(f"in add_cover {relay_port} {state_port}")
         self.add_switch(entity, relay_port, relay_active_low, relay_bias, relay_drive)
         self.add_sensor(entity, state_port, state_active_low, state_bias, 50)
+        self.update_lines()
 
